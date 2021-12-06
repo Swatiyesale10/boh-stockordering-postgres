@@ -55,13 +55,13 @@ export class OrderDetails {
         name:'amf_fl',
         type:'character varying',
     })
-    amf_fl: string
+    amf_fl: number
 
     @Column({
         name:'amk_kl',
         type:'character varying',
     })
-    amk_kl: string
+    amk_kl: number
 
     @Column({
         name:'shop_id',

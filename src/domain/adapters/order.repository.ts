@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { IOrderPort } from "src/domain/adapters/order.port";
 import {  MoreThanOrEqual,Repository } from "typeorm";
@@ -9,12 +9,12 @@ import { OrderDetails } from "../entities/orderdetails.entity";
 import { OrderDetailsModel } from "../models/orderDetails.model";
 import { RequestModel } from "../models/request.model";
 import { OrderMapper } from "../../infrastructure/mapper/order.mapper";
-import { WinstonLoggerService } from "src/infrastructure/logger/winston-logger.service";
+import { WinstonLoggerService } from "../../infrastructure/logger/winston-logger.service";
 
  
 @Injectable()
 export class OrderRepository implements IOrderPort {
-    constructor(@InjectRepository(OrderTrack) private orderRepository: Repository<OrderTrack> ,
+    constructor( @InjectRepository(OrderTrack) private orderRepository: Repository<OrderTrack> ,
                 @InjectRepository(StatusMaster) private statusRepository:Repository<StatusMaster>,
                 @InjectRepository(OrderDetails) private  orderDetailsRepository: Repository<OrderDetails>,
                 private logger: WinstonLoggerService,) 
@@ -26,65 +26,47 @@ export class OrderRepository implements IOrderPort {
 
      async fetchOrders(): Promise<OrderDetailsModel[]> 
      {
-       this.logger.info('in fetchOrders info', { key: 'value' });
-       this.logger.error('in fetchOrders error', { key: 'value' });
-       this.logger.debug('in fetchOrders debug', { key: 'value' });
-       this.logger.warn('in fetchOrders warn');
+      this.logger.info(`in fetchOrders `);
        const allOrders = await this.orderDetailsRepository.find()
-       console.log("odrderdetail####",allOrders)
+       this.logger.info(`in fetchOrders  info #order `,{allorder:allOrders});
        return OrderMapper.toDetails(allOrders)
+    }
+
+     async fetchStatus(): Promise<StatusModel[]> {
+       
+      return this.statusRepository.find()
+     // return OrderMapper.toDetails(allOrders)
     }
 
 
      async fetchByDate(): Promise<OrderDetailsModel[]>
-    {
-        this.logger.info('in fetchByDate info', { key: 'value' });
-        this.logger.error('in fetchByDate error', { key: 'value' });
-        this.logger.debug('in fetchByDate debug', { key: 'value' });
-        this.logger.warn('in fetchByDate warn');
-        const order =  await this.orderDetailsRepository.find({
-        where:{ delivery_date: MoreThanOrEqual(new Date())},
-       }) 
-        return OrderMapper.toDetails(order)
-    }
+      {
+         this.logger.info(`in fetchByDate info  `);
+         const order =  await this.orderDetailsRepository.find({
+         where:{ delivery_date: MoreThanOrEqual(new Date())},})
+         this.logger.info(`in fetchByDate info #order `,{model:order});
+         return OrderMapper.toDetails(order)
+      }
 
 
      async fetchById(order_id:string): Promise<any>
+
       {
-        this.logger.info('in fetchById info', { key: 'value' });
-        this.logger.error('in fetchById  error', { key: 'value' });
-        this.logger.debug('in fetchById  debug', { key: 'value' });
-        this.logger.warn('in fetchById  warn');
+       
+        this.logger.info(`in fetchById info #order_id  `,{order_id:order_id});
+        
         const order= await this.orderDetailsRepository.findOne(order_id)
-        console.log("Order#####",order)
+
+        this.logger.info(`in fetchById info  #order`,{fetchById:order});
         return  OrderMapper.toDetail(order)
       }
-            
-     async updateStatus(req:RequestModel):Promise<OrderDetailsModel>
 
-       {
-        console.log("##@@@",req)
-        console.log("statusid##",req.status_id)
-
-        let orderdetail=await this.orderDetailsRepository.findOne(req.order_id)
-        orderdetail.status_id=req.status_id
-       
-        const ordertrack= new OrderTrack();
-        ordertrack.insert_date=new Date()
-        ordertrack.status_id=req.status_id
-        ordertrack.orderdetail=orderdetail
-        console.log("$$%%^^&&",ordertrack)
-        this.orderRepository.save(ordertrack)
-       return this.orderDetailsRepository.save(orderdetail)
-       
-      }
-
-
-
-    async addOrder(details:OrderDetailsModel):Promise<OrderDetailsModel> {
-
+      async addOrder(details:OrderDetailsModel):Promise<OrderDetailsModel> 
+      { 
+        this.logger.info(`in addOrder info #OrderDetailsModel `);
+        
         const od=new OrderDetails();
-        console.log("orderdetailsss",details)
+       
         od.order_id=details.order_id
         od.supplier_id=details.supplier_id
         od.status_id=details.status_id
@@ -94,24 +76,52 @@ export class OrderRepository implements IOrderPort {
         od.cancelled_date=details.cancelled_date
         od.amf_fl=details.amf_fl
         od.amk_kl=details.amk_kl
+        od.shop_id=details.shop_id
+        od.allocated=details.allocated
+        od.total=details.total
+        od.delivery_date= new Date()
+        od.accepted_date=details.accepted_date
 
         const ordertracklist = new Array<OrderTrack>()
         const track=new OrderTrack()
+       
         track.insert_date= new Date
         track.status_id=od.status_id
         ordertracklist.push(track)
-        console.log("track",track)
+        this.logger.info(`in addOrder ordertrack info #OrderTrackModel `,{track:track});
         od.tracks=ordertracklist
-     
-       console.log("orderdetails#####",od)
-       return await this.orderDetailsRepository.save(od)
-}
+        
+        this.logger.info(`in addOrder orderdetails info #OrderDetailsModel `,{orderdetail:od});
+        return await this.orderDetailsRepository.save(od)
+      }
 
-async fetchStatus(): Promise<StatusModel[]> {
- 
-  return this.statusRepository.find()
-  //return OrderMapper.toDetails(allOrders)
-}
+            
+      async updateStatus(req:RequestModel):Promise<OrderDetailsModel>
+      { 
+        
+        this.logger.info(`in updateStatus info #RequestModel`,{requestmodel:req});
+       
+       
+        const orderdetail=await this.orderDetailsRepository.findOne(req.order_id)
+        this.logger.info(` in updateStatus info #orderdetail `,{order:orderdetail});
+        orderdetail.status_id=req.status_id
+      
+       
+        const ordertrack= new OrderTrack();
+        ordertrack.insert_date=new Date()
+        ordertrack.status_id=req.status_id
+        ordertrack.orderdetail=orderdetail
+        this.logger.info(` in updateStatus info #ordertrack `,{track:ordertrack});
+        this.orderRepository.save(ordertrack)
+        return this.orderDetailsRepository.save(orderdetail)
+
+       
+      }
+
+
+
+    
+
 
 
    

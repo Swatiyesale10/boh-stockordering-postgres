@@ -27,7 +27,7 @@ export class OrderMapper {
 
         return Optional.of(orderModel)
     }
-    static toDomains(repoEntities: OrderTrack): OrderTrackModel[] {
+    static toDomains(repoEntities: OrderTrack[]): OrderTrackModel[] {
         const orderModels = new Array<OrderTrackModel>()
         repoEntities.forEach(
             re => {
@@ -98,17 +98,7 @@ export class OrderMapper {
 
         return Optional.of(orderDModel)
     }
-    // static track(abc: OrderTrack[]):OrderTrack[]{
-        
-    // abc.forEach(
-    //     re =>{
-    //        return (re)
-    //     }
-        
-    // )
-    // return abc
-   
-   // }
+    
     static toDetails(repoEntities: OrderDetails[]): OrderDetailsModel[] {
         const orderDModels = new Array<OrderDetailsModel>()
         repoEntities.forEach(

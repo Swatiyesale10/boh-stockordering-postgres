@@ -21,12 +21,7 @@ import { OrderDetails } from 'src/domain/entities/orderdetails.entity';
     ],
     controllers: [OrderController],
     providers: [
-       OrderRepository,
-       
-        
-        
-
-    ],
+       OrderRepository ],
 })
 
 export class OrderModule {

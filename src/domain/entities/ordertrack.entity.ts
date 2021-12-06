@@ -5,12 +5,7 @@ import { OrderDetails } from "./orderdetails.entity";
     name:'order_track'
 })
 export class OrderTrack{
-    forEach(arg0: (re: any) => void) {
-        throw new Error("Method not implemented.");
-    }
-    constructor(){
-        console.log('Ordertrack entitiy created')
-    }
+    constructor() {}
    
     
     @PrimaryGeneratedColumn()
@@ -49,7 +44,6 @@ export class OrderTrack{
 @ManyToOne(()=>OrderDetails, order=>order.tracks, { primary: true })
 @JoinColumn({ name: "order_id",referencedColumnName: "order_id" })
 orderdetail:OrderDetails
-
 
 
 
